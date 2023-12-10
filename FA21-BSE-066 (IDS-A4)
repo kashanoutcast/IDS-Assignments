@@ -1,0 +1,69 @@
+# Dec 9, 2023
+# CSC461 – Assignment4 – NLP
+# Ch. M. Kashan Akram
+# FA21-BSE-066
+# The code computes Bag of Words, Term Frequency, Inverse Document Frequency, 
+# and TF-IDF values for a set of sentences, and then calculates the cosine, Manhattan, and Euclidean distances between their TF-IDF vectors.
+
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
+import numpy as np
+
+sentences = [
+    "data science is one of the most important courses in computer science",
+    "this is one of the best data science courses",
+    "the data scientists perform data analysis"
+]
+
+vectorizer_bow = CountVectorizer()
+bow_matrix = vectorizer_bow.fit_transform(sentences)
+
+tokens = [sentence.split() for sentence in sentences]
+vocabulary = list(set(word for sentence in tokens for word in sentence))
+tf_matrix = np.zeros((len(sentences), len(vocabulary)))
+for i, sentence in enumerate(tokens):
+    total_words = len(sentence)
+    for j, term in enumerate(vocabulary):
+        tf_matrix[i, j] = sentence.count(term) / total_words
+
+vectorizer_idf = TfidfVectorizer(use_idf=False)
+idf_matrix = vectorizer_idf.fit_transform(sentences)
+
+vectorizer_tfidf = TfidfVectorizer()
+tfidf_matrix = vectorizer_tfidf.fit_transform(sentences)
+
+terms = vectorizer_tfidf.get_feature_names_out()
+
+print("\nQ1: BoW, TF, IDF, and TF.IDF values for each term:")
+print("Terms:", terms)
+print()
+
+print("BoW Matrix:")
+print(bow_matrix.toarray())
+print()
+print("TF Matrix:")
+print(tf_matrix)
+print()
+print("IDF Matrix:")
+print(idf_matrix.toarray())
+print()
+print("TF.IDF Matrix:")
+print(tfidf_matrix.toarray())
+print()
+
+def compute_distances(matrix, distance_metric):
+    return pairwise_distances(matrix, metric=distance_metric)
+
+cosine_distances = compute_distances(tfidf_matrix, 'cosine')
+manhattan_distances = compute_distances(tfidf_matrix, 'manhattan')
+euclidean_distances = compute_distances(tfidf_matrix, 'euclidean')
+
+print("\nQ2: Similarity between S1, S2, and S3 using cosine, manhattan, and euclidean distances:")
+print("Cosine Distances:")
+print(cosine_distances)
+print()
+print("Manhattan Distances:")
+print(manhattan_distances)
+print()
+print("Euclidean Distances:")
+print(euclidean_distances)
